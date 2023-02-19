@@ -1,6 +1,6 @@
 CREATE TABLE products(
   id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-  title TEXT NOT NULL,
+  title TEXT NOT NULL UNIQUE,
   price INTEGER NOT NULL,
   description TEXT,
   category INTEGER NOT NULL,
@@ -36,10 +36,11 @@ CREATE TABLE address(
 CREATE TABLE carts(
   id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
   userId INTEGER NOT NULL,
+  productId INTEGER NOT NULL,
+  quantity INTEGER NOT NULL,
   date TEXT DEFAULT CURRENT_TIMESTAMP,
-  orderID INTEGER NOT NULL,
   FOREIGN KEY(userId) REFERENCES users(id),
-  FOREIGN KEY(orderID) REFERENCES ordered_products(id)
+  FOREIGN KEY(productId) REFERENCES products(id)
   );
  
 CREATE TABLE ordered_products(
@@ -82,9 +83,9 @@ INSERT INTO ordered_products(product,quantity) VALUES(1,5);
 INSERT INTO ordered_products(product,quantity) VALUES(2,3);
 INSERT INTO ordered_products(product,quantity) VALUES(3,6);
 
-INSERT INTO carts(userId,orderID) VALUES(1,2);
-INSERT INTO carts(userId,orderID) VALUES(1,3);
-INSERT INTO carts(userId,orderID) VALUES(2,1);
+INSERT INTO carts(userId,productId,quantity) VALUES(1,2,25);
+INSERT INTO carts(userId,productId,quantity) VALUES(1,3,14);
+INSERT INTO carts(userId,productId,quantity) VALUES(2,1,12);
 
  INSERT INTO stock VALUES(1,25);
  INSERT INTO stock VALUES(2,20);

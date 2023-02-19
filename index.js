@@ -260,7 +260,7 @@ app.post('/categories',(req,res) => {
 });
 
 app.get('/carts',(req,res) => {
-    db.all(`select carts.id,users.username,products.title,ordered_products.quantity,products.price,(ordered_products.quantity*products.price) as "Total price" from carts inner join users on carts.userId=users.id inner join ordered_products on carts.orderID=ordered_products.id inner join products on ordered_products.product=products.id`,[],(err,rows) => {
+    db.all(`SELECT carts.id,users.username,products.title,quantity,products.price,(quantity*products.price) as "Total price",date FROM carts INNER JOIN users ON carts.userId=users.id INNER JOIN products ON carts.productId=products.id`,[],(err,rows) => {
         if(err){
             res.status(400).json({"error":err.message});
             return;
@@ -269,10 +269,24 @@ app.get('/carts',(req,res) => {
     });
 });
 
+app.post('/carts',(req,res) => {
+    const {userId,productId,quantity} = req.body;
+    if(!userId || !productId|| !quantity){
+        res.status(400).json({"error":"required fields are missing"});
+        return;
+    }
+    db.run(`INSERT INTO carts(userId,productId,quantity) VALUES(?,?,?)`,[userId,productId,quantity],function(err){
+        if(err){
+            res.status(400).json({"error":err.message});
+            return;
+        }
+        res.status(201).json({"id":this.lastID,userId,productId,quantity})
+    })
+});
 
 app.get('/carts/users/:userId',(req,res) => {
     const userId = req.params.userId;
-    db.all(`select carts.id,users.username,products.title,ordered_products.quantity,products.price,(ordered_products.quantity*products.price) as "Total price" from carts inner join users on carts.userId=users.id inner join ordered_products on carts.orderID=ordered_products.id inner join products on ordered_products.product=products.id where users.id=?`,[userId],(err,rows) => {
+    db.all(`SELECT carts.id,users.username,products.title,quantity,products.price,(quantity*products.price) as "Total price",date FROM carts INNER JOIN users ON carts.userId=users.id INNER JOIN products ON carts.productId=products.id where users.id=?`,[userId],(err,rows) => {
         if(err){
             res.status(400).json({"error":err.message});
             return;
