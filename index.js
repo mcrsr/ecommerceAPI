@@ -1,11 +1,23 @@
 const express = require('express');
 const app = express();
 const sqlite3 = require('sqlite3').verbose();
+const rateLimit = require("express-rate-limit");
+
 
 const PORT = 9999;
 
 app.use(express.json()) // for parsing application/json
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
+
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+    message: "Too many requests from this IP, please try again later"
+  });
+
+// apply to all requests
+app.use(limiter);
+
 
 let db = new sqlite3.Database('./ecommerce.db', (err) => {
     if (err) {
